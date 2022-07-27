@@ -57,7 +57,7 @@ public class ErrorHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public ErrorResponse ValidationErrorResponse(MethodArgumentNotValidException e) {
+    public ErrorResponse validationErrorResponse(MethodArgumentNotValidException e) {
         log.info(e.getMessage());
         return new ErrorResponse(
                 Objects.requireNonNull(e.getBindingResult().getFieldError()).getDefaultMessage()

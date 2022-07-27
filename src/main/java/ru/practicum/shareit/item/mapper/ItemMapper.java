@@ -18,7 +18,7 @@ public class ItemMapper {
         return itemDto;
     }
 
-    public static Item toItem (ItemCreationDto itemCreationDto) {
+    public static Item toItem(ItemCreationDto itemCreationDto) {
         Item item = new Item();
         item.setName(itemCreationDto.getName());
         item.setDescription(itemCreationDto.getDescription());
@@ -27,7 +27,7 @@ public class ItemMapper {
         return item;
     }
 
-    public static Item toItem (ItemUpdationDto itemUpdationDto) {
+    public static Item toItem(ItemUpdationDto itemUpdationDto) {
         Item item = new Item();
         item.setName(itemUpdationDto.getName());
         item.setDescription(itemUpdationDto.getDescription());

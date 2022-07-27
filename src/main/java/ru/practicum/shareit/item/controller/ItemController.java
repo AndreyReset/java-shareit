@@ -64,7 +64,7 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> search(@RequestParam(required=true) String text) {
+    public List<ItemDto> search(@RequestParam(required = true) String text) {
         log.info("Поиск вещи по строке - " + text);
         return itemService.search(text)
                 .stream()
