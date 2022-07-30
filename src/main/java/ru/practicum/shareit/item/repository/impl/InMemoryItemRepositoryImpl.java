@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.repository.impl;
 
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.ObjNotFoundException;
 import ru.practicum.shareit.item.model.Item;
@@ -18,8 +19,10 @@ public class InMemoryItemRepositoryImpl implements ItemRepository {
     private long itemId = 1;
 
     @Override
-    public List<Item> findAll() {
-        return items;
+    public List<Item> findItemsByUserId(long userId) {
+        return items.stream()
+                .filter(item -> item.getOwner() == userId)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -30,25 +33,24 @@ public class InMemoryItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public Item create(Item item) {
+    public Item create(Item item, long userId) {
         item.setId(itemId);
+        item.setOwner(userId);
         items.add(item);
         itemId++;
         return item;
     }
 
     @Override
-    public Item update(Item item) {
+    public Item update(Item item, long userId, long itemId) {
         for (Item it : items) {
-            if (it.getId() == item.getId()) {
-                if (it.getOwner() != item.getOwner())
+            if (it.getId() == itemId) {
+                if (it.getOwner() != userId)
                     throw new ForbiddenException("Нет доступа для редактирования");
-                if (item.getName() != null)
-                    if (!item.getName().isEmpty())
-                        it.setName(item.getName());
-                if (item.getDescription() != null)
-                    if (!item.getDescription().isEmpty())
-                        it.setDescription(item.getDescription());
+                if (StringUtils.hasText(item.getName()))
+                    it.setName(item.getName());
+                if (StringUtils.hasText(item.getDescription()))
+                    it.setDescription(item.getDescription());
                 if (item.getAvailable() != null)
                     it.setAvailable(item.getAvailable());
                 return it;
