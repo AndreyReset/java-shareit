@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ObjNotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -19,8 +20,8 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
 
     @Override
-    public List<Item> findAll() {
-        return itemRepository.findAll();
+    public List<Item> findItemsByUserId(long userId) {
+        return itemRepository.findItemsByUserId(userId);
     }
 
     @Override
@@ -29,15 +30,17 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Item create(Item item) {
-        if (userRepository.findUserById(item.getOwner()).isEmpty())
+    public Item create(Item item, long userId) {
+        if (userId == -1) throw new BadRequestException("Не определен заголовок X-Sharer-User-Id");
+        if (userRepository.findUserById(userId).isEmpty())
             throw new ObjNotFoundException("Пользователь не найден");
-        return itemRepository.create(item);
+        return itemRepository.create(item, userId);
     }
 
     @Override
-    public Item update(Item item) {
-        return itemRepository.update(item);
+    public Item update(Item item, long userId, long itemId) {
+        if (userId == -1) throw new BadRequestException("Не определен заголовок X-Sharer-User-Id");
+        return itemRepository.update(item, userId, itemId);
     }
 
     @Override
