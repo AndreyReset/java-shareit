@@ -19,7 +19,7 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name ="text")
+    @Column(name = "text")
     private String text;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)

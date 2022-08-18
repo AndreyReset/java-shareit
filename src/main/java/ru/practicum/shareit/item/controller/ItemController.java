@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
@@ -67,7 +66,7 @@ public class ItemController {
     public CommentDto addComment(@Valid @RequestBody CommentAddingDto commentAdding,
                                  @PathVariable long itemId,
                                  @RequestHeader(value = "X-Sharer-User-Id", defaultValue = "-1") long userId) {
-        log.info("Добавление комментария к вещи с id = `" + itemId + "`" );
+        log.info("Добавление комментария к вещи с id = `" + itemId + "`");
         return CommentMapper.toDto(itemService.addComment(itemId, userId, CommentMapper.toComment(commentAdding)));
     }
 }

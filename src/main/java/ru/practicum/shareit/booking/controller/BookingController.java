@@ -32,7 +32,7 @@ public class BookingController {
         return BookingMapper.creationDtoOut(bookingService.create(booking, userId));
     }
 
-    @PatchMapping(value = "/{bookingId}") // доступ только для владельца вещи
+    @PatchMapping(value = "/{bookingId}")
     public BookingDto update(
             @RequestHeader(value = "X-Sharer-User-Id", defaultValue = "-1") long userId,
             @PathVariable long bookingId,
@@ -41,7 +41,7 @@ public class BookingController {
         return BookingMapper.toDto(bookingService.update(bookingId, userId, approved));
     }
 
-    @GetMapping (value = "/{bookingId}") // доступ либо автору бронирования либо владельцу вещи
+    @GetMapping (value = "/{bookingId}")
     public BookingDto findBookingById(
             @RequestHeader(value = "X-Sharer-User-Id", defaultValue = "-1") long userId,
             @PathVariable int bookingId) {
@@ -50,8 +50,8 @@ public class BookingController {
     }
 
     @GetMapping
-    public List<BookingDto> findBookingsByUserId( // список моих бронирований с учетом статуса
-            @RequestParam(defaultValue="ALL") BookingStatusForFind state,
+    public List<BookingDto> findBookingsByUserId(
+            @RequestParam(defaultValue = "ALL") BookingStatusForFind state,
             @RequestHeader(value = "X-Sharer-User-Id", defaultValue = "-1") long userId) {
         log.info("GET - получение списка бронирований со статусом = `" + state +
                 "`, пользователя = `" + userId + "`");
@@ -61,9 +61,9 @@ public class BookingController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping(value = "/owner")// список бронирований моих вещей с учетом статуса
+    @GetMapping(value = "/owner")
     public List<BookingDto> findBookingsByOwner(
-            @RequestParam(defaultValue="ALL") BookingStatusForFind state,
+            @RequestParam(defaultValue = "ALL") BookingStatusForFind state,
             @RequestHeader(value = "X-Sharer-User-Id", defaultValue = "-1") long userId) {
         log.info("GET - получение списка бронирований вещей со статусом = `" + state +
                 "`, пользователя = `" + userId + "`");
