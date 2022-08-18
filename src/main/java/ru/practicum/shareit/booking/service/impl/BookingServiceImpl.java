@@ -52,8 +52,7 @@ public class BookingServiceImpl implements BookingService {
             if (booking.getStatus().equals(BookingStatus.APPROVED))
                 throw new BadRequestException("Статус изменен ранее на APPROVED");
             booking.setStatus(BookingStatus.APPROVED);
-        }
-        else booking.setStatus(BookingStatus.REJECTED);
+        } else booking.setStatus(BookingStatus.REJECTED);
         return bookingRepository.save(booking);
     }
 

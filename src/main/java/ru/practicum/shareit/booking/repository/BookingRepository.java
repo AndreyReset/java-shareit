@@ -19,6 +19,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "AND b.end<?4 ")
     List<Booking> findBookigsToCheckForAddingAComment(
             long itemId, long bookerId, BookingStatus status, LocalDateTime time);
+
     @Query("SELECT new Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
             "FROM Booking AS b " +
             "WHERE b.id=?1 AND b.item.owner=?2")
