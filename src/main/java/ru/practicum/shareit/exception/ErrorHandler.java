@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -64,6 +65,16 @@ public class ErrorHandler {
         log.info(e.getMessage());
         return new ErrorResponse(
                 Objects.requireNonNull(e.getBindingResult().getFieldError()).getDefaultMessage()
+        );
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ErrorResponse validationErrorResponse(MethodArgumentTypeMismatchException e) {
+        log.info(e.getMessage());
+        return new ErrorResponse(
+            "Unknown state: UNSUPPORTED_STATUS"
         );
     }
 

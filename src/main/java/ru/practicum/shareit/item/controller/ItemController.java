@@ -3,15 +3,14 @@ package ru.practicum.shareit.item.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.dto.ItemCreationDto;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemUpdationDto;
+import ru.practicum.shareit.item.dto.*;
+import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -33,10 +32,11 @@ public class ItemController {
     }
 
     @GetMapping("{id}")
-    public Optional<ItemDto> findItemById(@PathVariable long id) {
+    public ItemDto findItemById(@PathVariable long id,
+                                @RequestHeader(value = "X-Sharer-User-Id", defaultValue = "-1")
+                                long userId) {
         log.info("GET запрос на получение вещи с id = " + id);
-        return itemService.findItemById(id)
-                .map(ItemMapper::toDto);
+        return ItemMapper.toDto(itemService.findItemById(id, userId));
     }
 
     @PostMapping
@@ -61,5 +61,13 @@ public class ItemController {
                 .stream()
                 .map(ItemMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto addComment(@Valid @RequestBody CommentAddingDto commentAdding,
+                                 @PathVariable long itemId,
+                                 @RequestHeader(value = "X-Sharer-User-Id", defaultValue = "-1") long userId) {
+        log.info("Добавление комментария к вещи с id = `" + itemId + "`" );
+        return CommentMapper.toDto(itemService.addComment(itemId, userId, CommentMapper.toComment(commentAdding)));
     }
 }

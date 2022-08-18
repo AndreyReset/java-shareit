@@ -1,8 +1,6 @@
 package ru.practicum.shareit.item.mapper;
 
-import ru.practicum.shareit.item.dto.ItemCreationDto;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemUpdationDto;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Item;
 
 public class ItemMapper {
@@ -15,6 +13,9 @@ public class ItemMapper {
         itemDto.setAvailable(item.getAvailable());
         itemDto.setOwner(item.getOwner());
         itemDto.setRequest(item.getRequest());
+        itemDto.setLastBooking(item.getLastBooking());
+        itemDto.setNextBooking(item.getNextBooking());
+        itemDto.setComments(CommentMapper.toDto(item));
         return itemDto;
     }
 
