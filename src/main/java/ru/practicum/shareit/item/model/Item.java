@@ -44,7 +44,7 @@ public class Item {
     @Transient
     private Set<Comment> comment = new HashSet<>();
 
-    Item (long id, String name, String description, Boolean available) {
+    Item(long id, String name, String description, Boolean available) {
         this.id = id;
         this.name = name;
         this.description = description;
