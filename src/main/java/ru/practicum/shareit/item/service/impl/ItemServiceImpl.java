@@ -2,12 +2,16 @@ package ru.practicum.shareit.item.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.ObjNotFoundException;
+import ru.practicum.shareit.item.dto.CommentAddingDto;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.LastBooking;
@@ -23,6 +27,7 @@ import java.util.*;
 
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
@@ -71,19 +76,22 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public Item create(Item item, long userId) {
         if (userId == -1) throw new BadRequestException("Не определен заголовок X-Sharer-User-Id");
-        userRepository.findById(userId).orElseThrow(() -> new ObjNotFoundException("Пользователь не найден"));
-        item.setOwner(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ObjNotFoundException("Пользователь не найден"));
+        item.setOwner(user);
         return itemRepository.save(item);
     }
 
     @Override
+    @Transactional
     public Item update(Item item, long userId, long itemId) {
         if (userId == -1) throw new BadRequestException("Не определен заголовок X-Sharer-User-Id");
         Optional<Item> oldItem = Optional.ofNullable(findItemById(itemId, userId));
         if (oldItem.isPresent()) {
-            if (userId != oldItem.get().getOwner())
+            if (userId != oldItem.get().getOwner().getId())
                 throw new ForbiddenException("Нет доступа для редактирования");
             item.setId(itemId);
             if (item.getName() == null)
@@ -101,12 +109,12 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<Item> search(String text) {
         if (text.isBlank()) return new ArrayList<>();
-        return itemRepository.findItemsByAvailableIsAndDescriptionContainingIgnoreCaseOrNameContainingIgnoreCase(
-                true, text, text);
+        return itemRepository.findItemsByNameAndDescriptionAndAvailable(text);
     }
 
     @Override
-    public Comment addComment(long itemId, long userId, Comment comment) {
+    @Transactional
+    public CommentDto addComment(long itemId, long userId, CommentAddingDto commentAddingDto) {
         if (userId == -1) throw new BadRequestException("Не определен заголовок X-Sharer-User-Id");
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ObjNotFoundException("Пользователь не найден"));
@@ -116,9 +124,6 @@ public class ItemServiceImpl implements ItemService {
                         itemId, userId, BookingStatus.APPROVED, LocalDateTime.now());
         if (booking.isEmpty()) throw new BadRequestException("Ошибочный запрос");
 
-        comment.setAuthor(user);
-        comment.setItem(item);
-        comment.setCreated(LocalDateTime.now());
-        return commentRepository.save(comment);
+        return CommentMapper.toDto(commentRepository.save(CommentMapper.toComment(commentAddingDto, item, user)));
     }
 }

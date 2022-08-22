@@ -1,7 +1,9 @@
 package ru.practicum.shareit.booking.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.model.BookingStatusForFind;
@@ -19,6 +21,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
@@ -26,6 +29,7 @@ public class BookingServiceImpl implements BookingService {
     private final UserRepository userRepository;
 
     @Override
+    @Transactional
     public Booking create(Booking booking, long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ObjNotFoundException("Пользователь не найден"));
@@ -33,7 +37,7 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new ObjNotFoundException("Вещь не найдена"));
         if (!item.getAvailable())
             throw new BadRequestException("Вещь недоступна");
-        if (item.getOwner() == userId)
+        if (item.getOwner().getId() == userId)
             throw new ObjNotFoundException("Владелец вещи не может забронировать свою вещь");
         booking.setBooker(user);
         booking.setItem(item);
@@ -43,8 +47,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public Booking update(long bookingId, long userId, Boolean approved) {
-        if (userId == -1) throw new BadRequestException("Не определен заголовок X-Sharer-User-Id");
         if (approved == null) throw new BadRequestException("Параметр approved не определен");
         Booking booking = bookingRepository.findBookingByIdForUpdate(bookingId, userId)
                 .orElseThrow(() -> new ObjNotFoundException("Объект для обновления не найден"));
@@ -58,7 +62,6 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Booking findBookingById(long bookingId, long userId) {
-        if (userId == -1) throw new BadRequestException("Не определен заголовок X-Sharer-User-Id");
         return bookingRepository.findBookingByBookerIdOrOwnerId(bookingId, userId)
                 .orElseThrow(() -> new ObjNotFoundException("Запись о бронировании не найдена"));
     }
@@ -68,27 +71,33 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> bookings;
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findAllBookingsByBookerId(userId);
+                bookings = bookingRepository.findAllBookingsByBookerId(
+                        userId, Sort.by(Sort.Direction.DESC, "start"));
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             case WAITING:
-                bookings = bookingRepository.findBookingsByStatusIs(userId, BookingStatus.WAITING);
+                bookings = bookingRepository.findBookingsByStatusIs(
+                        userId, BookingStatus.WAITING, Sort.by(Sort.Direction.DESC, "start"));
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             case REJECTED:
-                bookings = bookingRepository.findBookingsByStatusIs(userId, BookingStatus.REJECTED);
+                bookings = bookingRepository.findBookingsByStatusIs(
+                        userId, BookingStatus.REJECTED, Sort.by(Sort.Direction.DESC, "start"));
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             case PAST:
-                bookings = bookingRepository.findPastBookings(userId, LocalDateTime.now());
+                bookings = bookingRepository.findPastBookings(
+                        userId, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             case FUTURE:
-                bookings = bookingRepository.findFutureBookings(userId, LocalDateTime.now());
+                bookings = bookingRepository.findFutureBookings(
+                        userId, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             case CURRENT:
-                bookings = bookingRepository.findCurrentBookings(userId, LocalDateTime.now());
+                bookings = bookingRepository.findCurrentBookings(
+                        userId, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             default:
@@ -101,27 +110,33 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> bookings;
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findAllBookingByOwnerId(userId);
+                bookings = bookingRepository.findAllBookingByOwnerId(
+                        userId, Sort.by(Sort.Direction.DESC, "start"));
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             case WAITING:
-                bookings = bookingRepository.findBookingsByOwnerIdAndStatus(userId, BookingStatus.WAITING);
+                bookings = bookingRepository.findBookingsByOwnerIdAndStatus(
+                        userId, BookingStatus.WAITING, Sort.by(Sort.Direction.DESC, "start"));
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             case REJECTED:
-                bookings = bookingRepository.findBookingsByOwnerIdAndStatus(userId, BookingStatus.REJECTED);
+                bookings = bookingRepository.findBookingsByOwnerIdAndStatus(
+                        userId, BookingStatus.REJECTED, Sort.by(Sort.Direction.DESC, "start"));
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             case PAST:
-                bookings = bookingRepository.findPastBookingsByOwnerId(userId, LocalDateTime.now());
+                bookings = bookingRepository.findPastBookingsByOwnerId(
+                        userId, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             case FUTURE:
-                bookings = bookingRepository.findFutureBookingsByOwnerId(userId, LocalDateTime.now());
+                bookings = bookingRepository.findFutureBookingsByOwnerId(
+                        userId, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             case CURRENT:
-                bookings = bookingRepository.findCurrentBookingsByOwnerId(userId, LocalDateTime.now());
+                bookings = bookingRepository.findCurrentBookingsByOwnerId(
+                        userId, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             default:

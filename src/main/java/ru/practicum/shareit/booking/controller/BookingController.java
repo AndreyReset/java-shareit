@@ -10,6 +10,8 @@ import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatusForFind;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -26,15 +28,15 @@ public class BookingController {
     @PostMapping
     public BookingCreationDtoOut create(
             @Valid @RequestBody BookingCreationDtoIn bookingCreationDtoIn,
-            @RequestHeader(value = "X-Sharer-User-Id", defaultValue = "-1") long userId) {
+            @RequestHeader(value = "X-Sharer-User-Id") long userId) {
         log.info("POST - добавление нового запроса на бронирование");
-        Booking booking = BookingMapper.toBooking(bookingCreationDtoIn);
+        Booking booking = BookingMapper.toBooking(bookingCreationDtoIn, new Item(), new User());
         return BookingMapper.creationDtoOut(bookingService.create(booking, userId));
     }
 
     @PatchMapping(value = "/{bookingId}")
     public BookingDto update(
-            @RequestHeader(value = "X-Sharer-User-Id", defaultValue = "-1") long userId,
+            @RequestHeader(value = "X-Sharer-User-Id") long userId,
             @PathVariable long bookingId,
             @RequestParam(required = false) Boolean approved) {
         log.info("PATCH - подтвердить/отклонить запрос на бронирование, approved = " + approved);
@@ -43,7 +45,7 @@ public class BookingController {
 
     @GetMapping (value = "/{bookingId}")
     public BookingDto findBookingById(
-            @RequestHeader(value = "X-Sharer-User-Id", defaultValue = "-1") long userId,
+            @RequestHeader(value = "X-Sharer-User-Id") long userId,
             @PathVariable int bookingId) {
         log.info("GET - получение вещи по id = `" + bookingId + "`, userId = `" + userId + "`");
         return BookingMapper.toDto(bookingService.findBookingById(bookingId, userId));
@@ -52,7 +54,7 @@ public class BookingController {
     @GetMapping
     public List<BookingDto> findBookingsByUserId(
             @RequestParam(defaultValue = "ALL") BookingStatusForFind state,
-            @RequestHeader(value = "X-Sharer-User-Id", defaultValue = "-1") long userId) {
+            @RequestHeader(value = "X-Sharer-User-Id") long userId) {
         log.info("GET - получение списка бронирований со статусом = `" + state +
                 "`, пользователя = `" + userId + "`");
         return bookingService.findBookingsByUserId(userId, state)
@@ -64,7 +66,7 @@ public class BookingController {
     @GetMapping(value = "/owner")
     public List<BookingDto> findBookingsByOwner(
             @RequestParam(defaultValue = "ALL") BookingStatusForFind state,
-            @RequestHeader(value = "X-Sharer-User-Id", defaultValue = "-1") long userId) {
+            @RequestHeader(value = "X-Sharer-User-Id") long userId) {
         log.info("GET - получение списка бронирований вещей со статусом = `" + state +
                 "`, пользователя = `" + userId + "`");
         return bookingService.findBookingsByOwner(userId, state)

@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -27,8 +28,9 @@ public class Item {
     @Column(name = "is_available")
     private Boolean available;
 
-    @Column(name = "owner_id", updatable = false)
-    private long owner;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "owner_id", updatable = false)
+    private User owner;
 
     @Column(name = "request_id", updatable = false)
     private long request;
@@ -41,4 +43,11 @@ public class Item {
 
     @Transient
     private Set<Comment> comment = new HashSet<>();
+
+    Item (long id, String name, String description, Boolean available) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.available = available;
+    }
 }

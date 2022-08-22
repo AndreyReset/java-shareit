@@ -7,6 +7,7 @@ import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.user.model.User;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -42,7 +43,7 @@ public class ItemController {
     public ItemDto create(@Valid @RequestBody ItemCreationDto itemCreationDto,
                           @RequestHeader(value = "X-Sharer-User-Id", defaultValue = "-1") long userId) {
         log.info("POST запрос на добавление вещи");
-        return ItemMapper.toDto(itemService.create(ItemMapper.toItem(itemCreationDto), userId));
+        return ItemMapper.toDto(itemService.create(ItemMapper.toItem(itemCreationDto, new User(userId)), userId));
     }
 
     @PatchMapping("{itemId}")
@@ -67,6 +68,6 @@ public class ItemController {
                                  @PathVariable long itemId,
                                  @RequestHeader(value = "X-Sharer-User-Id", defaultValue = "-1") long userId) {
         log.info("Добавление комментария к вещи с id = `" + itemId + "`");
-        return CommentMapper.toDto(itemService.addComment(itemId, userId, CommentMapper.toComment(commentAdding)));
+        return itemService.addComment(itemId, userId, commentAdding);
     }
 }
