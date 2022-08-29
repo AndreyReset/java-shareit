@@ -1,7 +1,11 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.Data;
-import ru.practicum.shareit.requests.model.ItemRequest;
+import ru.practicum.shareit.item.model.LastBooking;
+import ru.practicum.shareit.item.model.NextBooking;
+import ru.practicum.shareit.user.model.User;
+
+import java.util.Set;
 
 @Data
 public class ItemDto {
@@ -9,6 +13,9 @@ public class ItemDto {
     private String name;
     private String description;
     private boolean available;
-    private long owner;
-    private ItemRequest request;
+    private User owner;
+    private long request;
+    private LastBooking lastBooking;
+    private NextBooking nextBooking;
+    private Set<CommentDto> comments;
 }

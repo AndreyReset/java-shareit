@@ -1,10 +1,12 @@
 package ru.practicum.shareit.item.mapper;
 
-import ru.practicum.shareit.item.dto.ItemCreationDto;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemUpdationDto;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ItemMapper {
 
     public static ItemDto toDto(Item item) {
@@ -15,15 +17,18 @@ public class ItemMapper {
         itemDto.setAvailable(item.getAvailable());
         itemDto.setOwner(item.getOwner());
         itemDto.setRequest(item.getRequest());
+        itemDto.setLastBooking(item.getLastBooking());
+        itemDto.setNextBooking(item.getNextBooking());
+        itemDto.setComments(CommentMapper.toDto(item));
         return itemDto;
     }
 
-    public static Item toItem(ItemCreationDto itemCreationDto) {
+    public static Item toItem(ItemCreationDto itemCreationDto, User owner) {
         Item item = new Item();
         item.setName(itemCreationDto.getName());
         item.setDescription(itemCreationDto.getDescription());
         item.setAvailable(itemCreationDto.isAvailable());
-        item.setOwner(itemCreationDto.getOwner());
+        item.setOwner(owner);
         return item;
     }
 
