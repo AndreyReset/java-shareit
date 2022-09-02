@@ -19,5 +19,7 @@ public class ItemCreationDto {
     @AssertTrue(message = "Изначально вещь должна быть доступна")
     private boolean available;
 
+    private long requestId;
+
     private long owner;
 }

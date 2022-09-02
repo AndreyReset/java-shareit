@@ -54,10 +54,12 @@ public class BookingController {
     @GetMapping
     public List<BookingDto> findBookingsByUserId(
             @RequestParam(defaultValue = "ALL") BookingStatusForFind state,
-            @RequestHeader(value = "X-Sharer-User-Id") long userId) {
+            @RequestHeader(value = "X-Sharer-User-Id") long userId,
+            @RequestParam(defaultValue = "0") int from,
+            @RequestParam(defaultValue = "10") int size) {
         log.info("GET - получение списка бронирований со статусом = `" + state +
                 "`, пользователя = `" + userId + "`");
-        return bookingService.findBookingsByUserId(userId, state)
+        return bookingService.findBookingsByUserId(userId, state, from, size)
                 .stream()
                 .map(BookingMapper::toDto)
                 .collect(Collectors.toList());
@@ -66,10 +68,12 @@ public class BookingController {
     @GetMapping(value = "/owner")
     public List<BookingDto> findBookingsByOwner(
             @RequestParam(defaultValue = "ALL") BookingStatusForFind state,
-            @RequestHeader(value = "X-Sharer-User-Id") long userId) {
+            @RequestHeader(value = "X-Sharer-User-Id") long userId,
+            @RequestParam(defaultValue = "0") int from,
+            @RequestParam(defaultValue = "10") int size) {
         log.info("GET - получение списка бронирований вещей со статусом = `" + state +
                 "`, пользователя = `" + userId + "`");
-        return bookingService.findBookingsByOwner(userId, state)
+        return bookingService.findBookingsByOwner(userId, state, from, size)
                 .stream()
                 .map(BookingMapper::toDto)
                 .collect(Collectors.toList());

@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
@@ -36,8 +38,10 @@ public class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepository;
 
     @Override
-    public List<Item> findItemsByUserId(long userId) {
-        List<Item> items = itemRepository.findItemsByOwnerIsOrderByIdAsc(userId);
+    public List<Item> findItemsByUserId(long userId, int from, int size) {
+        checkInputDataForPageable(from, size);
+        Pageable pageable = PageRequest.of(from, size);
+        List<Item> items = itemRepository.findItemsByOwnerIsOrderByIdAsc(userId, pageable);
         for (Item item: items) {
             addNextBookingToItem(item, userId);
             addlastBookingToItem(item, userId);
@@ -101,15 +105,17 @@ public class ItemServiceImpl implements ItemService {
             if (item.getAvailable() == null)
                 item.setAvailable(oldItem.get().getAvailable());
             item.setOwner(oldItem.get().getOwner());
-            item.setRequest(oldItem.get().getRequest());
+            item.setRequestId(oldItem.get().getRequestId());
         }
         return itemRepository.save(item);
     }
 
     @Override
-    public List<Item> search(String text) {
+    public List<Item> search(String text, int from, int size) {
+        checkInputDataForPageable(from, size);
+        Pageable pageable = PageRequest.of(from, size);
         if (text.isBlank()) return new ArrayList<>();
-        return itemRepository.findItemsByNameAndDescriptionAndAvailable(text);
+        return itemRepository.findItemsByNameAndDescriptionAndAvailable(text, pageable);
     }
 
     @Override
@@ -125,5 +131,10 @@ public class ItemServiceImpl implements ItemService {
         if (booking.isEmpty()) throw new BadRequestException("Ошибочный запрос");
 
         return CommentMapper.toDto(commentRepository.save(CommentMapper.toComment(commentAddingDto, item, user)));
+    }
+
+    private void checkInputDataForPageable(int from, int size) {
+        if (size <= 0) throw new BadRequestException("Параметер size не может быть меньше 1");
+        if (from < 0) throw new BadRequestException("Параметер from не может быть меньше 0");
     }
 }

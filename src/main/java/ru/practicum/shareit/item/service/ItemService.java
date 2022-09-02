@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ItemService {
 
-    List<Item> findItemsByUserId(long userId);
+    List<Item> findItemsByUserId(long userId, int from, int size);
 
     Item findItemById(long id, long userId);
 
@@ -16,7 +16,7 @@ public interface ItemService {
 
     Item update(Item item, long userId, long itemId);
 
-    List<Item> search(String text);
+    List<Item> search(String text, int from, int size);
 
     CommentDto addComment(long itemId, long userId, CommentAddingDto comment);
 }

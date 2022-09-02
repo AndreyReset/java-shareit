@@ -33,7 +33,7 @@ public class Item {
     private User owner;
 
     @Column(name = "request_id", updatable = false)
-    private long request;
+    private long requestId;
 
     @Transient
     private LastBooking lastBooking;

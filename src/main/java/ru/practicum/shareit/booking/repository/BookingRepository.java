@@ -1,6 +1,6 @@
 package ru.practicum.shareit.booking.repository;
 
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.model.Booking;
@@ -33,51 +33,51 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("SELECT new Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
             "FROM Booking AS b " +
-            "WHERE b.booker.id=?1 AND b.status<>'REJECTED' ")
-    List<Booking> findAllBookingsByBookerId(long bookerId, Sort sort);
+            "WHERE b.booker.id=?1 ")
+    List<Booking> findAllBookingsByBookerId(long bookerId, Pageable pageable);
 
     @Query("SELECT new Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
             "FROM Booking AS b " +
             "WHERE b.status=?2 AND b.booker.id=?1 ")
-    List<Booking> findBookingsByStatusIs(long userId, BookingStatus status, Sort sort);
+    List<Booking> findBookingsByStatusIs(long userId, BookingStatus status, Pageable pageable);
 
     @Query("SELECT new Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
             "FROM Booking AS b " +
             "WHERE b.start > ?2 AND (b.status='WAITING' OR b.status='APPROVED') AND b.booker.id=?1 ")
-    List<Booking> findFutureBookings(long userId, LocalDateTime start, Sort sort);
+    List<Booking> findFutureBookings(long userId, LocalDateTime start, Pageable pageable);
 
     @Query("SELECT new Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
             "FROM Booking AS b " +
             "WHERE ?2 BETWEEN b.start AND b.end AND b.booker.id=?1 ")
-    List<Booking> findCurrentBookings(long userId, LocalDateTime time, Sort sort);
+    List<Booking> findCurrentBookings(long userId, LocalDateTime time, Pageable pageable);
 
     @Query("SELECT new Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
             "FROM Booking AS b " +
             "WHERE b.status='APPROVED' AND b.end<?2 AND b.booker.id=?1 ")
-    List<Booking> findPastBookings(long userId, LocalDateTime time, Sort sort);
+    List<Booking> findPastBookings(long userId, LocalDateTime time, Pageable pageable);
 
     @Query("SELECT new Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
             "FROM Booking AS b " +
-            "WHERE b.item.owner.id =?1 AND b.status<>'REJECTED' ")
-    List<Booking> findAllBookingByOwnerId(long ownerId, Sort sort);
+            "WHERE b.item.owner.id =?1 ")
+    List<Booking> findAllBookingByOwnerId(long ownerId, Pageable pageable);
 
     @Query("SELECT new Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
             "FROM Booking AS b " +
             "WHERE b.status=?2 AND b.item.owner.id=?1 ")
-    List<Booking> findBookingsByOwnerIdAndStatus(long ownerId, BookingStatus status, Sort sort);
+    List<Booking> findBookingsByOwnerIdAndStatus(long ownerId, BookingStatus status, Pageable pageable);
 
     @Query("SELECT new Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
             "FROM Booking AS b " +
             "WHERE b.start > ?2 AND (b.status='WAITING' OR b.status='APPROVED') AND b.item.owner.id=?1 ")
-    List<Booking> findFutureBookingsByOwnerId(long ownerId, LocalDateTime time, Sort sort);
+    List<Booking> findFutureBookingsByOwnerId(long ownerId, LocalDateTime time, Pageable pageable);
 
     @Query("SELECT new Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
             "FROM Booking AS b " +
             "WHERE ?2 BETWEEN b.start AND b.end AND b.item.owner.id=?1 ")
-    List<Booking> findCurrentBookingsByOwnerId(long ownerId, LocalDateTime time, Sort sort);
+    List<Booking> findCurrentBookingsByOwnerId(long ownerId, LocalDateTime time, Pageable pageable);
 
     @Query("SELECT new Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
             "FROM Booking AS b " +
             "WHERE b.status='APPROVED' AND b.end<?2 AND b.item.owner.id=?1 ")
-    List<Booking> findPastBookingsByOwnerId(long ownerId, LocalDateTime time, Sort sort);
+    List<Booking> findPastBookingsByOwnerId(long ownerId, LocalDateTime time, Pageable pageable);
 }
