@@ -39,7 +39,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<Item> findItemsByUserId(long userId, int from, int size) {
-        checkInputDataForPageable(from, size);
+        verifyInputDataForPageable(from, size);
         Pageable pageable = PageRequest.of(from, size);
         List<Item> items = itemRepository.findItemsByOwnerIsOrderByIdAsc(userId, pageable);
         for (Item item: items) {
@@ -82,7 +82,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public Item create(Item item, long userId) {
-        if (userId == -1) throw new BadRequestException("Не определен заголовок X-Sharer-User-Id");
+        verifyInputParameterUserId(userId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ObjNotFoundException("Пользователь не найден"));
         item.setOwner(user);
@@ -92,7 +92,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public Item update(Item item, long userId, long itemId) {
-        if (userId == -1) throw new BadRequestException("Не определен заголовок X-Sharer-User-Id");
+        verifyInputParameterUserId(userId);
         Optional<Item> oldItem = Optional.ofNullable(findItemById(itemId, userId));
         if (oldItem.isPresent()) {
             if (userId != oldItem.get().getOwner().getId())
@@ -112,7 +112,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<Item> search(String text, int from, int size) {
-        checkInputDataForPageable(from, size);
+        verifyInputDataForPageable(from, size);
         Pageable pageable = PageRequest.of(from, size);
         if (text.isBlank()) return new ArrayList<>();
         return itemRepository.findItemsByNameAndDescriptionAndAvailable(text, pageable);
@@ -121,7 +121,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public CommentDto addComment(long itemId, long userId, CommentAddingDto commentAddingDto) {
-        if (userId == -1) throw new BadRequestException("Не определен заголовок X-Sharer-User-Id");
+        verifyInputParameterUserId(userId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ObjNotFoundException("Пользователь не найден"));
         Item item = itemRepository.findById(itemId)
@@ -133,8 +133,12 @@ public class ItemServiceImpl implements ItemService {
         return CommentMapper.toDto(commentRepository.save(CommentMapper.toComment(commentAddingDto, item, user)));
     }
 
-    private void checkInputDataForPageable(int from, int size) {
+    private void verifyInputDataForPageable(int from, int size) {
         if (size <= 0) throw new BadRequestException("Параметер size не может быть меньше 1");
         if (from < 0) throw new BadRequestException("Параметер from не может быть меньше 0");
+    }
+
+    private void  verifyInputParameterUserId(long userId) {
+        if (userId == -1) throw new BadRequestException("Не определен заголовок X-Sharer-User-Id");
     }
 }

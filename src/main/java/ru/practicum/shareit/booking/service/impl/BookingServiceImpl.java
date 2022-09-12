@@ -135,9 +135,4 @@ public class BookingServiceImpl implements BookingService {
                 throw new BadRequestException("Unknown state: UNSUPPORTED_STATUS");
         }
     }
-
-    private void checkInputDataForPageable(int from, int size) {
-        if (size <= 0) throw new BadRequestException("Параметер size не может быть меньше 1");
-        if (from < 0) throw new BadRequestException("Параметер from не может быть меньше 0");
-    }
 }
