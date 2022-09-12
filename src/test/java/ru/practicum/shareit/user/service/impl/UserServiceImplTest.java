@@ -10,6 +10,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.ObjNotFoundException;
 import ru.practicum.shareit.user.model.User;
@@ -29,8 +31,9 @@ import static org.hamcrest.Matchers.*;
 @ExtendWith(MockitoExtension.class)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @SpringBootTest(
-        properties = "db.name=test",
         webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@TestPropertySource("/application-test.properties")
+@ActiveProfiles("test")
 class UserServiceImplTest {
 
     @Mock
