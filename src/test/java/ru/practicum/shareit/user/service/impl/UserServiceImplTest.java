@@ -175,18 +175,4 @@ class UserServiceImplTest {
         assertThat(userFromDB.getName(), equalTo(userUpd.getName()));
         assertThat(userFromDB.getEmail(), equalTo(userUpd.getEmail()));
     }
-
-    @Test
-    public void deleteUser() {
-        User user = new User(1L, "Tamara", "tamara@ya.ru");
-        userService.create(user);
-
-        List<User> users = userService.findAll();
-        assertThat(users.size(), equalTo(1));
-
-        userService.delete(1L);
-
-        users = userService.findAll();
-        assertThat(users.size(), equalTo(0));
-    }
 }
