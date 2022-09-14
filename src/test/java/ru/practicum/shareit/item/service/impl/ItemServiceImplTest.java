@@ -275,4 +275,16 @@ class ItemServiceImplTest {
         Item item = itemService.findItemById(1L, 1L);
         assertThat(2L, equalTo(item.getNextBooking().getBookerId()));
     }
+
+    @Test
+    public void whenAddNextBooking_thenNull() {
+        Item item = itemService.findItemById(1L, 2L);
+        assertNull(item.getNextBooking());
+    }
+    @Test
+    public void whenAddLastBooking_thenNull() {
+        Item item = itemService.findItemById(3L, 2L);
+        System.out.println(item);
+        assertNull(item.getLastBooking());
+    }
 }
