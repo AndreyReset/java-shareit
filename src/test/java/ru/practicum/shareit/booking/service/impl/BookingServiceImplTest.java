@@ -439,4 +439,26 @@ class BookingServiceImplTest {
         );
         assertEquals("Записи не найдены", exception.getMessage());
     }
+
+    @Test
+    public void findBookingByOwnerIdWithStatusUNSUPPORTED_resultEmpty() {
+        Throwable exception = assertThrows(
+                BadRequestException.class,
+                () -> {
+                    bookingService.findBookingsByOwner(300L, BookingStatusForFind.UNSUPPORTED_STATUS, 0, 10);
+                }
+        );
+        assertEquals("Unknown state: UNSUPPORTED_STATUS", exception.getMessage());
+    }
+
+    @Test
+    public void findBookingByUserIdWithStatusUNSUPPORTED_resultEmpty() {
+        Throwable exception = assertThrows(
+                BadRequestException.class,
+                () -> {
+                    bookingService.findBookingsByUserId(300L, BookingStatusForFind.UNSUPPORTED_STATUS, 0, 10);
+                }
+        );
+        assertEquals("Unknown state: UNSUPPORTED_STATUS", exception.getMessage());
+    }
 }
