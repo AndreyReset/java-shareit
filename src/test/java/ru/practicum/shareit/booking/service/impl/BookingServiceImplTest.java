@@ -148,6 +148,35 @@ class BookingServiceImplTest {
     }
 
     @Test
+    public void whenCreateBookingWhereEndTimeBeforeStartTime_thenCallCustomException() {
+        BookingServiceImpl bookingService = new BookingServiceImpl(bookingRepository, itemRepository, userRepository);
+        User user = new User(1, "Василий", "email@ya.ru");
+        Mockito
+                .when(userRepository.findById(Mockito.anyLong()))
+                .thenReturn(Optional.of(user));
+        Item item = new Item();
+        item.setId(1L);
+        item.setAvailable(true);
+        item.setOwner(user);
+        Mockito
+                .when(itemRepository.findById(Mockito.anyLong()))
+                .thenReturn(Optional.of(item));
+        Booking booking = new Booking();
+        booking.setId(1L);
+        booking.setItem(item);
+        booking.setStart(LocalDateTime.now().plusHours(1L));
+        booking.setEnd(LocalDateTime.now().minusHours(1L));
+
+        Throwable exception = assertThrows(
+                BadRequestException.class,
+                () -> {
+                    bookingService.create(booking, 2L);
+                }
+        );
+        assertEquals("Конец бронирования не может быть больше или равен началу бронирования", exception.getMessage());
+    }
+
+    @Test
     public void whenUpdateBookingWhereApprovedNull_thenCallCustomException() {
         BookingServiceImpl bookingService = new BookingServiceImpl(bookingRepository, itemRepository, userRepository);
         Throwable exception = assertThrows(

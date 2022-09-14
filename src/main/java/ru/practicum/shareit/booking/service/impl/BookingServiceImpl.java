@@ -45,6 +45,8 @@ public class BookingServiceImpl implements BookingService {
         booking.setItem(item);
         if (booking.getStart().isBefore(LocalDateTime.now()))
             throw new BadRequestException("Начало бронирования не может быть в прошлом");
+        if (booking.getEnd().isBefore(booking.getStart()))
+            throw new BadRequestException("Конец бронирования не может быть больше или равен началу бронирования");
         return bookingRepository.save(booking);
     }
 
