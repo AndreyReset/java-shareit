@@ -93,7 +93,7 @@ class OffsetLimitPageableTest {
                 10,
                 Sort.by(Sort.Direction.DESC, "created"));
         Pageable pageable1 = pageable.next();
-        assertEquals(pageable.getOffset()+10, pageable1.getOffset());
+        assertEquals(pageable.getOffset() + 10, pageable1.getOffset());
     }
 
     @Test
@@ -123,6 +123,6 @@ class OffsetLimitPageableTest {
                 10,
                 Sort.by(Sort.Direction.DESC, "created"));
         Pageable pageable1 = pageable.withPage(2);
-        assertEquals(pageable.getOffset()+10*2, pageable1.getOffset());
+        assertEquals(pageable.getOffset() + 10 * 2, pageable1.getOffset());
     }
 }
