@@ -349,7 +349,7 @@ class BookingServiceImplTest {
         Throwable exception = assertThrows(
                 ObjNotFoundException.class,
                 () -> {
-                    bookingService.findBookingsByOwner(300L, BookingStatusForFind.CURRENT, 0, 10);
+                    bookingService.findBookingsByOwner(300L, BookingStatusForFind.ALL, 0, 10);
                 }
         );
         assertEquals("Записи не найдены", exception.getMessage());
