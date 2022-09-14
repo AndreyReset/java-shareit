@@ -19,7 +19,6 @@ import ru.practicum.shareit.exception.ObjNotFoundException;
 import ru.practicum.shareit.item.dto.CommentAddingDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.model.NextBooking;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.repository.UserRepository;
@@ -28,16 +27,12 @@ import ru.practicum.shareit.user.service.UserService;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
 
 @Transactional
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
