@@ -40,8 +40,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<Item> findItemsByUserId(long userId, int from, int size) {
         verifyInputDataForPageable(from, size);
-        Pageable pageable = PageRequest.of(from, size);
-        List<Item> items = itemRepository.findItemsByOwnerIsOrderByIdAsc(userId, pageable);
+        List<Item> items = itemRepository.findItemsByOwnerIsOrderByIdAsc(userId, PageRequest.of(from, size));
         for (Item item: items) {
             addNextBookingToItem(item, userId);
             addlastBookingToItem(item, userId);
