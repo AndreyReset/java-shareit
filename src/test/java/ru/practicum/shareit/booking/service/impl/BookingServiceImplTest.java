@@ -25,10 +25,12 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
+import java.awt.print.Book;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static net.bytebuddy.matcher.ElementMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
@@ -102,6 +104,21 @@ class BookingServiceImplTest {
                 }
         );
         assertEquals("Владелец вещи не может забронировать свою вещь", exception.getMessage());
+    }
+
+    @Test
+    public void whenCreate_thenOk() {
+        Booking bookingCreate = new Booking(
+                1L,
+                LocalDateTime.now().plusSeconds(1L),
+                LocalDateTime.now().plusHours(1L),
+                new Item(1L, "name", "des", true),
+                new User(),
+                BookingStatus.WAITING
+        );
+        Booking booking = bookingService.create(bookingCreate, 2L);
+
+        assertThat(bookingCreate.getBooker().getId(), equalTo(2L));
     }
 
     @Test
@@ -184,6 +201,18 @@ class BookingServiceImplTest {
         booking.setId(2L);
         booking.setStatus(BookingStatus.APPROVED);
         bookingService.update(2L, 1L, true);
+        TypedQuery<Booking> query = em.createQuery("Select b from Booking AS b where b.id = :id", Booking.class);
+        Booking booking1 = query.setParameter("id",2L).getSingleResult();
+        assertThat(booking.getId(), equalTo(booking1.getId()));
+        assertThat(booking.getStatus(), equalTo(booking1.getStatus()));
+    }
+
+    @Test
+    public void updateWithApprovedIsFalse() {
+        Booking booking = new Booking();
+        booking.setId(2L);
+        booking.setStatus(BookingStatus.REJECTED);
+        bookingService.update(2L, 1L, false);
         TypedQuery<Booking> query = em.createQuery("Select b from Booking AS b where b.id = :id", Booking.class);
         Booking booking1 = query.setParameter("id",2L).getSingleResult();
         assertThat(booking.getId(), equalTo(booking1.getId()));
