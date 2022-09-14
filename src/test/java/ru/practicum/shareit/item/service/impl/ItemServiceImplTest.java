@@ -93,6 +93,34 @@ class ItemServiceImplTest {
     }
 
     @Test
+    public void findItemsByUserId() {
+        List<Item> items = itemService.findItemsByUserId(1L, 0, 10);
+        assertThat(items.size(), equalTo(2));
+    }
+
+    @Test
+    public void whenFindItemsByUserIdWithParameterFromLessZero_thenCallException() {
+        Throwable exception = assertThrows(
+                BadRequestException.class,
+                () -> {
+                    List<Item> items = itemService.findItemsByUserId(1L, -1, 10);
+                }
+        );
+        assertEquals("Параметер from не может быть меньше 0", exception.getMessage());
+    }
+
+    @Test
+    public void whenFindItemsByUserIdWithParameterSizeIsZero_thenCallException() {
+        Throwable exception = assertThrows(
+                BadRequestException.class,
+                () -> {
+                    List<Item> items = itemService.findItemsByUserId(1L, 0, 0);
+                }
+        );
+        assertEquals("Параметер size не может быть меньше 1", exception.getMessage());
+    }
+
+    @Test
     public void whenUpdateItemUserDontAccess() {
         Item itemUpdate = new Item();
         itemUpdate.setName("Отвёртка");
