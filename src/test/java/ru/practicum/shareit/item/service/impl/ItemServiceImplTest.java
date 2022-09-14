@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exception.BadRequestException;
+import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.ObjNotFoundException;
 import ru.practicum.shareit.item.dto.CommentAddingDto;
 import ru.practicum.shareit.item.model.Comment;
@@ -91,6 +92,29 @@ class ItemServiceImplTest {
         assertThat(itemFromDB.getDescription(), equalTo(itemUpdate.getDescription()));
     }
 
+    @Test
+    public void whenUpdateItemUserDontAccess() {
+        Item itemUpdate = new Item();
+        itemUpdate.setName("Отвёртка");
+        itemUpdate.setDescription("Ржавая крестовая отвёртка");
+        Throwable exception = assertThrows(
+                ForbiddenException.class,
+                () -> {
+                    itemService.update(itemUpdate, 2L, 2L);
+                }
+        );
+        assertEquals("Нет доступа для редактирования", exception.getMessage());
+    }
+
+    @Test
+    public void whenUpdateWithNameAndDescriptionAndAvailableIsNull_thenOldValue() {
+        Item itemUpdate = new Item();
+        Item itemForCheck = new Item(2L, "Молоток", "Очень тяжелый", true);
+        Item item = itemService.update(itemUpdate, 1L, 2L);
+        assertThat(item.getName(), equalTo(itemForCheck.getName()));
+        assertThat(item.getDescription(), equalTo(itemForCheck.getDescription()));
+        assertThat(item.getAvailable(), equalTo(itemForCheck.getAvailable()));
+    }
 
     @Test
     public void commentAdd() {
