@@ -281,10 +281,10 @@ class ItemServiceImplTest {
         Item item = itemService.findItemById(1L, 2L);
         assertNull(item.getNextBooking());
     }
+
     @Test
     public void whenAddLastBooking_thenNull() {
         Item item = itemService.findItemById(3L, 2L);
-        System.out.println(item);
         assertNull(item.getLastBooking());
     }
 }
