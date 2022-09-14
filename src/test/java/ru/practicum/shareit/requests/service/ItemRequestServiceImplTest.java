@@ -114,6 +114,12 @@ class ItemRequestServiceImplTest {
     }
 
     @Test
+    public void findRequestsWithPagination() {
+        List<ItemRequestDto> list = itemRequestService.findRequestsOtherUsersWithPagination(1L, 0, 10);
+        assertThat(list.size(), equalTo(1));
+    }
+
+    @Test
     public void whenFindRequestByIdWrongUser() {
         Throwable exception = assertThrows(
                 ObjNotFoundException.class,
@@ -133,5 +139,11 @@ class ItemRequestServiceImplTest {
                 }
         );
         assertEquals("Запрос не найден", exception.getMessage());
+    }
+
+    @Test
+    public void findRequestById() {
+        ItemRequestDto requestDto = itemRequestService.findRequestById(1L, 1L);
+        assertThat(requestDto.getId(), equalTo(1L));
     }
 }
