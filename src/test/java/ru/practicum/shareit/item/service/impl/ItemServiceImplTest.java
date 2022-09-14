@@ -135,13 +135,36 @@ class ItemServiceImplTest {
     }
 
     @Test
-    public void whenUpdateWithNameAndDescriptionAndAvailableIsNull_thenOldValue() {
+    public void whenUpdateWithNameIsNull_thenOldValue() {
         Item itemUpdate = new Item();
-        Item itemForCheck = new Item(2L, "Молоток", "Очень тяжелый", true);
+        itemUpdate.setDescription("new description");
+        itemUpdate.setAvailable(false);
         Item item = itemService.update(itemUpdate, 1L, 2L);
-        assertThat(item.getName(), equalTo(itemForCheck.getName()));
-        assertThat(item.getDescription(), equalTo(itemForCheck.getDescription()));
-        assertThat(item.getAvailable(), equalTo(itemForCheck.getAvailable()));
+        assertThat(item.getName(), equalTo("Молоток"));
+        assertThat(item.getDescription(), equalTo("new description"));
+        assertThat(item.getAvailable(), equalTo(false));
+    }
+
+    @Test
+    public void whenUpdateWithDescriptionIsNull_thenOldValue() {
+        Item itemUpdate = new Item();
+        itemUpdate.setName("new name");
+        itemUpdate.setAvailable(false);
+        Item item = itemService.update(itemUpdate, 1L, 2L);
+        assertThat(item.getName(), equalTo("new name"));
+        assertThat(item.getDescription(), equalTo("Очень тяжелый"));
+        assertThat(item.getAvailable(), equalTo(false));
+    }
+
+    @Test
+    public void whenUpdateWithAvailableIsNull_thenOldValue() {
+        Item itemUpdate = new Item();
+        itemUpdate.setName("new name");
+        itemUpdate.setDescription("new des");
+        Item item = itemService.update(itemUpdate, 1L, 2L);
+        assertThat(item.getName(), equalTo("new name"));
+        assertThat(item.getDescription(), equalTo("new des"));
+        assertThat(item.getAvailable(), equalTo(true));
     }
 
     @Test
