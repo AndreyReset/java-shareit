@@ -19,4 +19,11 @@ class ErrorHandlerTest {
         ErrorResponse response = errorHandler.handleForbiddenException(new ForbiddenException("Ошибка 403"));
         assertEquals(response.getError(), "Ошибка 403");
     }
+
+    @Test
+    public void handleBadRequestException() {
+        ErrorHandler errorHandler = new ErrorHandler();
+        ErrorResponse response = errorHandler.handleBadRequestException(new BadRequestException("Ошибка 400"));
+        assertEquals(response.getError(), "Ошибка 400");
+    }
 }
