@@ -85,4 +85,44 @@ class OffsetLimitPageableTest {
         Pageable pageable = OffsetLimitPageable.of(null, null, Sort.by(Sort.Direction.DESC, "created"));
         assertEquals(pageable.getSort(), sort);
     }
+
+    @Test
+    public void whenNext_thenOk() {
+        Pageable pageable = OffsetLimitPageable.of(
+                1,
+                10,
+                Sort.by(Sort.Direction.DESC, "created"));
+        Pageable pageable1 = pageable.next();
+        assertEquals(pageable.getOffset()+10, pageable1.getOffset());
+    }
+
+    @Test
+    public void whenPreviousOrFirst_thenOk() {
+        Pageable pageable = OffsetLimitPageable.of(
+                1,
+                10,
+                Sort.by(Sort.Direction.DESC, "created"));
+        Pageable pageable1 = pageable.previousOrFirst();
+        assertEquals(pageable.getOffset(), pageable1.getOffset());
+    }
+
+    @Test
+    public void whenFirst_thenOk() {
+        Pageable pageable = OffsetLimitPageable.of(
+                1,
+                10,
+                Sort.by(Sort.Direction.DESC, "created"));
+        Pageable pageable1 = pageable.first();
+        assertEquals(pageable.getOffset(), pageable1.getOffset());
+    }
+
+    @Test
+    public void whenWithPage_thenOk() {
+        Pageable pageable = OffsetLimitPageable.of(
+                1,
+                10,
+                Sort.by(Sort.Direction.DESC, "created"));
+        Pageable pageable1 = pageable.withPage(2);
+        assertEquals(pageable.getOffset()+10*2, pageable1.getOffset());
+    }
 }
