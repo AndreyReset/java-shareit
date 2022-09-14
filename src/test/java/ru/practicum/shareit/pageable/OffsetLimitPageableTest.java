@@ -21,6 +21,17 @@ class OffsetLimitPageableTest {
     }
 
     @Test
+    public void whenFromLessZeroAndSizeLessZero_thenThrowException() {
+        Throwable exception = assertThrows(
+                BadRequestException.class,
+                () -> {
+                    Pageable pageable = OffsetLimitPageable.of(-1, -1);
+                }
+        );
+        assertEquals("from must be positive and size must be more then 0", exception.getMessage());
+    }
+
+    @Test
     public void whenSizeLessZero_thenThrowException() {
         Throwable exception = assertThrows(
                 BadRequestException.class,
@@ -46,6 +57,20 @@ class OffsetLimitPageableTest {
                     Pageable pageable = OffsetLimitPageable.of(
                             -1,
                             10,
+                            Sort.by(Sort.Direction.DESC, "created"));
+                }
+        );
+        assertEquals("from must be positive and size must be more then 0", exception.getMessage());
+    }
+
+    @Test
+    public void whenFromLessZeroAndSizeLessZeroWithSort_thenThrowException() {
+        Throwable exception = assertThrows(
+                BadRequestException.class,
+                () -> {
+                    Pageable pageable = OffsetLimitPageable.of(
+                            -1,
+                            -1,
                             Sort.by(Sort.Direction.DESC, "created"));
                 }
         );
