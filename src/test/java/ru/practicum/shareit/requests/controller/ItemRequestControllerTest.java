@@ -110,4 +110,16 @@ class ItemRequestControllerTest {
                 .andExpect(jsonPath("$.description", is(itemRequestDto1.getDescription())));
     }
 
+    @Test
+    public void whenCreateWithDescriptionIsEmpty_thenException() throws Exception {
+        ItemRequestCreationDto itemRequestCreationDto = new ItemRequestCreationDto();
+
+        mvc.perform(post("/requests")
+                        .header("X-Sharer-User-Id", "1")
+                        .content(mapper.writeValueAsString(itemRequestCreationDto))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error", is("Описание запроса не может быть пустым")));
+    }
 }

@@ -10,6 +10,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.ItemCreationDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 
@@ -156,4 +157,50 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.text", is(commentDto.getText())));
 
     }
+
+    @Test
+    public void whenCreateWithNameIsEmpty_thenException() throws Exception {
+        ItemCreationDto item = new ItemCreationDto();
+        item.setDescription("Описание");
+        item.setAvailable(true);
+
+        mvc.perform(post("/items")
+                        .content(mapper.writeValueAsString(item))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error", is("Название вещи не может быть пустым")));
+    }
+
+    @Test
+    public void whenCreateWithDescriptionIsEmpty_thenException() throws Exception {
+        ItemCreationDto item = new ItemCreationDto();
+        item.setName("Описание");
+        item.setAvailable(true);
+
+        mvc.perform(post("/items")
+                        .content(mapper.writeValueAsString(item))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error", is("Описание вещи не может быть пустым")));
+    }
+
+    @Test
+    public void whenCreateWithAvailableIsnull_thenException() throws Exception {
+        ItemCreationDto item = new ItemCreationDto();
+        item.setName("Описание");
+        item.setDescription("desc");
+
+        mvc.perform(post("/items")
+                        .content(mapper.writeValueAsString(item))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error", is("Изначально вещь должна быть доступна")));
+    }
+
 }

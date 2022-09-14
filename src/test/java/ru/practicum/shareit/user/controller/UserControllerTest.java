@@ -98,4 +98,30 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.email", is(user.getEmail())));
     }
 
+    @Test
+    public void whenCreatWithEmailIsEmpty_thenException() throws Exception {
+        User user = new User();
+
+        mvc.perform(post("/users")
+                        .content(mapper.writeValueAsString(user))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error", is("E-mail не может быть пустым")));
+    }
+
+    @Test
+    public void whenCreatWithEmailIsWrong_thenException() throws Exception {
+        User user = new User();
+        user.setEmail("email");
+
+        mvc.perform(post("/users")
+                        .content(mapper.writeValueAsString(user))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error", is("E-mail не валиден")));
+    }
 }

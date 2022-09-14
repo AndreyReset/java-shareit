@@ -143,4 +143,52 @@ class BookingControllerTest {
         booking.setItemId(id);
         return booking;
     }
+
+    @Test
+    public void whenCreateWithStartTimeIsEmpty_thenException() throws Exception {
+        BookingCreationDtoIn booking = new BookingCreationDtoIn();
+        booking.setItemId(1L);
+        booking.setEnd(LocalDateTime.now().plusHours(1L));
+
+        mvc.perform(post("/bookings")
+                        .content(mapper.writeValueAsString(booking))
+                        .header("X-Sharer-User-Id", "1")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error", is("Время старта бронирования не может быть пустым")));
+    }
+
+    @Test
+    public void whenCreateWithEndTimeIsEmpty_thenException() throws Exception {
+        BookingCreationDtoIn booking = new BookingCreationDtoIn();
+        booking.setItemId(1L);
+        booking.setStart(LocalDateTime.now().plusHours(1L));
+
+        mvc.perform(post("/bookings")
+                        .content(mapper.writeValueAsString(booking))
+                        .header("X-Sharer-User-Id", "1")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error", is("Время окончания бронирования не может быть пустым")));
+    }
+
+    @Test
+    public void whenCreateWithItemIdIsEmpty_thenException() throws Exception {
+        BookingCreationDtoIn booking = new BookingCreationDtoIn();
+        booking.setStart(LocalDateTime.now().plusHours(1L));
+        booking.setEnd(LocalDateTime.now().plusHours(2L));
+
+        mvc.perform(post("/bookings")
+                        .content(mapper.writeValueAsString(booking))
+                        .header("X-Sharer-User-Id", "1")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error", is("Id вещи не может быть пустым")));
+    }
 }
