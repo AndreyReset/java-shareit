@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,34 +14,21 @@ import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    @Query("SELECT new Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
-            "FROM Booking AS b " +
-            "WHERE b.item.id=?1 " +
-            "AND b.booker.id=?2 " +
-            "AND b.status=?3 " +
-            "AND b.end<?4 ")
-    List<Booking> findBookigsToCheckForAddingAComment(
-            long itemId, long bookerId, BookingStatus status, LocalDateTime time);
+    List<Booking> findAllByItemAndBookerAndStatusAndEndLessThan(Item item,
+                                                                User booker,
+                                                                BookingStatus status,
+                                                                LocalDateTime time);
 
-    @Query("SELECT new Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
-            "FROM Booking AS b " +
-            "WHERE b.id=?1 AND b.item.owner.id=?2")
-    Optional<Booking> findBookingByIdForUpdate(long bookingId, long userId);
+    Optional<Booking> findBookingByIdAndItem_Owner_idIs(long id, long itemOwnerId);
 
-    @Query("SELECT new Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
+    @Query("SELECT b " +
             "FROM Booking AS b " +
             "WHERE b.id=?1 AND (b.item.owner.id=?2 OR b.booker.id=?2)")
     Optional<Booking> findBookingByBookerIdOrOwnerId(long bookingId, long userId);
 
-    @Query("SELECT new Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
-            "FROM Booking AS b " +
-            "WHERE b.booker.id=?1 ")
-    List<Booking> findAllBookingsByBookerId(long bookerId, Pageable pageable);
+    List<Booking> findBookingsByBooker_id(long bookerId, Pageable pageable);
 
-    @Query("SELECT new Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
-            "FROM Booking AS b " +
-            "WHERE b.status=?2 AND b.booker.id=?1 ")
-    List<Booking> findBookingsByStatusIs(long userId, BookingStatus status, Pageable pageable);
+    List<Booking> findBookingsByStatusIsAndBooker_Id(BookingStatus status, long userId, Pageable pageable);
 
     @Query("SELECT new Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
             "FROM Booking AS b " +
@@ -65,6 +54,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "FROM Booking AS b " +
             "WHERE b.status=?2 AND b.item.owner.id=?1 ")
     List<Booking> findBookingsByOwnerIdAndStatus(long ownerId, BookingStatus status, Pageable pageable);
+
+    List<Booking> findBookingsByStatusIsAndItem_Owner_Id(BookingStatus status, long ownerId,Pageable pageable);
 
     @Query("SELECT new Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
             "FROM Booking AS b " +

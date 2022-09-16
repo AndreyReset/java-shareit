@@ -192,7 +192,7 @@ class BookingServiceImplTest {
     public void whenUpdateStatusApprovedBeforeRequesting_thenCallCustomException() {
         BookingServiceImpl bookingService = new BookingServiceImpl(bookingRepository, itemRepository, userRepository);
         Mockito
-                .when(bookingRepository.findBookingByIdForUpdate(1L, 1L))
+                .when(bookingRepository.findBookingByIdAndItem_Owner_idIs(1L, 1L))
                 .thenReturn(Optional.empty());
 
         Throwable exception = assertThrows(
@@ -211,7 +211,7 @@ class BookingServiceImplTest {
         booking.setId(1L);
         booking.setStatus(BookingStatus.APPROVED);
         Mockito
-                .when(bookingRepository.findBookingByIdForUpdate(1L, 1L))
+                .when(bookingRepository.findBookingByIdAndItem_Owner_idIs(1L, 1L))
                 .thenReturn(Optional.of(booking));
         Throwable exception = assertThrows(
                 BadRequestException.class,

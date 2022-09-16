@@ -54,7 +54,9 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public Booking update(long bookingId, long userId, Boolean approved) {
         if (approved == null) throw new BadRequestException("Параметр approved не определен");
-        Booking booking = bookingRepository.findBookingByIdForUpdate(bookingId, userId)
+        //Booking booking = bookingRepository.findBookingByIdForUpdate(bookingId, userId)
+        //        .orElseThrow(() -> new ObjNotFoundException("Объект для обновления не найден"));
+        Booking booking = bookingRepository.findBookingByIdAndItem_Owner_idIs(bookingId, userId)
                 .orElseThrow(() -> new ObjNotFoundException("Объект для обновления не найден"));
         if (approved) {
             if (booking.getStatus().equals(BookingStatus.APPROVED))
@@ -76,15 +78,17 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> bookings;
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findAllBookingsByBookerId(userId, pageable);
+                bookings = bookingRepository.findBookingsByBooker_id(userId, pageable);
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             case WAITING:
-                bookings = bookingRepository.findBookingsByStatusIs(userId, BookingStatus.WAITING, pageable);
+                bookings = bookingRepository
+                        .findBookingsByStatusIsAndBooker_Id(BookingStatus.WAITING, userId, pageable);
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             case REJECTED:
-                bookings = bookingRepository.findBookingsByStatusIs(userId, BookingStatus.REJECTED, pageable);
+                bookings = bookingRepository
+                        .findBookingsByStatusIsAndBooker_Id(BookingStatus.REJECTED, userId, pageable);
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             case PAST:
@@ -114,11 +118,13 @@ public class BookingServiceImpl implements BookingService {
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             case WAITING:
-                bookings = bookingRepository.findBookingsByOwnerIdAndStatus(userId, BookingStatus.WAITING, pageable);
+                bookings = bookingRepository
+                        .findBookingsByStatusIsAndItem_Owner_Id(BookingStatus.WAITING, userId, pageable);
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             case REJECTED:
-                bookings = bookingRepository.findBookingsByOwnerIdAndStatus(userId, BookingStatus.REJECTED, pageable);
+                bookings = bookingRepository
+                        .findBookingsByStatusIsAndItem_Owner_Id(BookingStatus.REJECTED, userId, pageable);
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             case PAST:

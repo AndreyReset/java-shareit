@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
@@ -40,10 +41,10 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<Item> findItemsByUserId(long userId, int from, int size) {
         verifyInputDataForPageable(from, size);
-        List<Item> items = itemRepository.findItemsByOwnerIsOrderByIdAsc(userId, PageRequest.of(from, size));
+        List<Item> items = itemRepository.findAllByOwner_idIs(userId, PageRequest.of(from, size));
         for (Item item: items) {
             addNextBookingToItem(item, userId);
-            addlastBookingToItem(item, userId);
+            addLastBookingToItem(item, userId);
             addCommentsToItem(item);
         }
         return items;
@@ -54,27 +55,27 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new ObjNotFoundException("Вещь не найдена"));
         addNextBookingToItem(item, userId);
-        addlastBookingToItem(item, userId);
+        addLastBookingToItem(item, userId);
         addCommentsToItem(item);
         return item;
     }
 
     private void addNextBookingToItem(Item item, long userId) {
-        List<NextBooking> nextBooking = itemRepository.findNextBooking(
-                                        item.getId(), LocalDateTime.now(), userId);
+        List<NextBooking> nextBooking = itemRepository.findNextBooking(item.getId(), LocalDateTime.now(), userId,
+                PageRequest.of(0, 1, Sort.by(Sort.Direction.ASC, "start")));
         if (!nextBooking.isEmpty())
             item.setNextBooking(nextBooking.get(0));
     }
 
-    private void addlastBookingToItem(Item item, long userId) {
-        List<LastBooking> lastBooking = itemRepository.findLastBooking(
-                                        item.getId(), LocalDateTime.now(), userId);
+    private void addLastBookingToItem(Item item, long userId) {
+        List<LastBooking> lastBooking = itemRepository.findLastBooking(item.getId(), LocalDateTime.now(), userId,
+                PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "start")));
         if (!lastBooking.isEmpty())
             item.setLastBooking(lastBooking.get(0));
     }
 
     private void addCommentsToItem(Item item) {
-        Set<Comment> comments = new HashSet<>(commentRepository.findCommentsToItemById(item.getId()));
+        Set<Comment> comments = new HashSet<>(commentRepository.findAllByItem(item));
         item.setComment(comments);
     }
 
@@ -125,8 +126,8 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new ObjNotFoundException("Пользователь не найден"));
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new ObjNotFoundException("Вещь не найдена"));
-        List<Booking> booking = bookingRepository.findBookigsToCheckForAddingAComment(
-                        itemId, userId, BookingStatus.APPROVED, LocalDateTime.now());
+        List<Booking> booking = bookingRepository
+                .findAllByItemAndBookerAndStatusAndEndLessThan(item, user, BookingStatus.APPROVED, LocalDateTime.now());
         if (booking.isEmpty()) throw new BadRequestException("Ошибочный запрос");
 
         return CommentMapper.toDto(commentRepository.save(CommentMapper.toComment(commentAddingDto, item, user)));

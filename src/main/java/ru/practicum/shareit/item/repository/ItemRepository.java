@@ -12,11 +12,7 @@ import java.util.List;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
-    @Query("SELECT i " +
-            "FROM Item AS i " +
-            "WHERE i.owner.id=?1 " +
-            "ORDER BY i.id ASC ")
-    List<Item> findItemsByOwnerIsOrderByIdAsc(long userId, Pageable pageable);
+    List<Item> findAllByOwner_idIs(long ownerId, Pageable pageable);
 
     @Query("SELECT i " +
             "FROM Item AS i " +
@@ -27,15 +23,11 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     @Query("SELECT new ru.practicum.shareit.item.model.NextBooking(b.id, b.booker.id) " +
             "FROM Booking AS b " +
-            "WHERE b.item.id=?1 AND b.start>?2 AND b.status<>'REJECTED' AND b.item.owner.id=?3 " +
-            "ORDER BY b.start ASC "
-    )
-    List<NextBooking> findNextBooking(long itemId, LocalDateTime time, long ownerId);
+            "WHERE b.item.id=?1 AND b.start>?2 AND b.status<>'REJECTED' AND b.item.owner.id=?3 ")
+    List<NextBooking> findNextBooking(long itemId, LocalDateTime time, long ownerId, Pageable pageable);
 
     @Query("SELECT new ru.practicum.shareit.item.model.LastBooking(b.id, b.booker.id) " +
             "FROM Booking AS b " +
-            "WHERE b.item.id=?1 AND b.start<?2 AND b.status<>'REJECTED' AND b.item.owner.id=?3 " +
-            "ORDER BY b.start DESC "
-    )
-    List<LastBooking> findLastBooking(long itemId, LocalDateTime time, long ownerId);
+            "WHERE b.item.id=?1 AND b.start<?2 AND b.status<>'REJECTED' AND b.item.owner.id=?3 ")
+    List<LastBooking> findLastBooking(long itemId, LocalDateTime time, long ownerId, Pageable pageable);
 }

@@ -12,10 +12,7 @@ import java.util.List;
 
 public interface ItemRequestsRepository extends JpaRepository<ItemRequest, Long> {
 
-    @Query("SELECT i " +
-            "FROM ItemRequest AS i " +
-            "WHERE i.requester.id=?1 ")
-    List<ItemRequest> findRequestsByOwnerId(long ownerId, Sort sort);
+    List<ItemRequest> findAllByRequester_id(long ownerId, Sort sort);
 
     @Query("SELECT i " +
             "FROM ItemRequest AS i " +

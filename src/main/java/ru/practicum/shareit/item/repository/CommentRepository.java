@@ -1,15 +1,12 @@
 package ru.practicum.shareit.item.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.item.model.Comment;
+import ru.practicum.shareit.item.model.Item;
 
 import java.util.Set;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
-    @Query("SELECT new Comment(c.id, c.text, c.item, c.author, c.created) " +
-            "FROM Comment AS c " +
-            "WHERE c.item.id=?1 ")
-    Set<Comment> findCommentsToItemById(long itemId);
+    Set<Comment> findAllByItem(Item item);
 }

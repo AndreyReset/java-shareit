@@ -42,7 +42,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public List<ItemRequestDto> findRequestsByOwnerId(long ownerId) {
         userRepository.findById(ownerId)
                 .orElseThrow(() -> new ObjNotFoundException("Пользователь не найден"));
-        List<ItemRequest> itemRequests = itemRequestsRepository.findRequestsByOwnerId(
+        List<ItemRequest> itemRequests = itemRequestsRepository.findAllByRequester_id(
                 ownerId, Sort.by(Sort.Direction.DESC, "created"));
         return itemRequests.stream()
                 .map(this::addItemShortData)
