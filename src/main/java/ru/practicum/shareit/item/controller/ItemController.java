@@ -21,10 +21,11 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping
-    public List<ItemDto> findItemsByUserId(@RequestHeader(value = "X-Sharer-User-Id", defaultValue = "-1")
-                                                          long userId) {
+    public List<ItemDto> findItemsByUserId(@RequestHeader(value = "X-Sharer-User-Id", defaultValue = "-1") long userId,
+                                           @RequestParam(defaultValue = "0") int from,
+                                           @RequestParam(defaultValue = "10") int size) {
         log.info("GET зарпос на получение списка всех вещей у пользователя с id = " + userId);
-        return itemService.findItemsByUserId(userId)
+        return itemService.findItemsByUserId(userId, from, size)
                 .stream()
                 .map(ItemMapper::toDto)
                 .collect(Collectors.toList());
@@ -54,9 +55,11 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> search(@RequestParam(required = true) String text) {
+    public List<ItemDto> search(@RequestParam(required = true) String text,
+                                @RequestParam(defaultValue = "0") int from,
+                                @RequestParam(defaultValue = "10") int size) {
         log.info("Поиск вещи по строке - `" + text + "`");
-        return itemService.search(text)
+        return itemService.search(text, from, size)
                 .stream()
                 .map(ItemMapper::toDto)
                 .collect(Collectors.toList());

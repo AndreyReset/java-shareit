@@ -6,5 +6,6 @@ public enum BookingStatusForFind {
     PAST,       //завершенные
     FUTURE,     //будущие
     WAITING,    //ожидающие подтверждения
-    REJECTED    //отклоненные
+    REJECTED,    //отклоненные
+    UNSUPPORTED_STATUS
 }

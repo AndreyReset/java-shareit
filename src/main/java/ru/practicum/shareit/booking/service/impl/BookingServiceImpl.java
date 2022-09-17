@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +14,7 @@ import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ObjNotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.pageable.OffsetLimitPageable;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -43,6 +45,8 @@ public class BookingServiceImpl implements BookingService {
         booking.setItem(item);
         if (booking.getStart().isBefore(LocalDateTime.now()))
             throw new BadRequestException("Начало бронирования не может быть в прошлом");
+        if (booking.getEnd().isBefore(booking.getStart()))
+            throw new BadRequestException("Конец бронирования не может быть больше или равен началу бронирования");
         return bookingRepository.save(booking);
     }
 
@@ -50,7 +54,9 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public Booking update(long bookingId, long userId, Boolean approved) {
         if (approved == null) throw new BadRequestException("Параметр approved не определен");
-        Booking booking = bookingRepository.findBookingByIdForUpdate(bookingId, userId)
+        //Booking booking = bookingRepository.findBookingByIdForUpdate(bookingId, userId)
+        //        .orElseThrow(() -> new ObjNotFoundException("Объект для обновления не найден"));
+        Booking booking = bookingRepository.findBookingByIdAndItem_Owner_idIs(bookingId, userId)
                 .orElseThrow(() -> new ObjNotFoundException("Объект для обновления не найден"));
         if (approved) {
             if (booking.getStatus().equals(BookingStatus.APPROVED))
@@ -67,37 +73,34 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> findBookingsByUserId(long userId, BookingStatusForFind state) {
+    public List<Booking> findBookingsByUserId(long userId, BookingStatusForFind state, int from, int size) {
+        Pageable pageable = OffsetLimitPageable.of(from, size, Sort.by(Sort.Direction.DESC, "start"));
         List<Booking> bookings;
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findAllBookingsByBookerId(
-                        userId, Sort.by(Sort.Direction.DESC, "start"));
+                bookings = bookingRepository.findBookingsByBooker_id(userId, pageable);
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             case WAITING:
-                bookings = bookingRepository.findBookingsByStatusIs(
-                        userId, BookingStatus.WAITING, Sort.by(Sort.Direction.DESC, "start"));
+                bookings = bookingRepository
+                        .findBookingsByStatusIsAndBooker_Id(BookingStatus.WAITING, userId, pageable);
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             case REJECTED:
-                bookings = bookingRepository.findBookingsByStatusIs(
-                        userId, BookingStatus.REJECTED, Sort.by(Sort.Direction.DESC, "start"));
+                bookings = bookingRepository
+                        .findBookingsByStatusIsAndBooker_Id(BookingStatus.REJECTED, userId, pageable);
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             case PAST:
-                bookings = bookingRepository.findPastBookings(
-                        userId, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
+                bookings = bookingRepository.findPastBookings(userId, LocalDateTime.now(), pageable);
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             case FUTURE:
-                bookings = bookingRepository.findFutureBookings(
-                        userId, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
+                bookings = bookingRepository.findFutureBookings(userId, LocalDateTime.now(), pageable);
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             case CURRENT:
-                bookings = bookingRepository.findCurrentBookings(
-                        userId, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
+                bookings = bookingRepository.findCurrentBookings(userId, LocalDateTime.now(), pageable);
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             default:
@@ -106,37 +109,34 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> findBookingsByOwner(long userId, BookingStatusForFind state) {
+    public List<Booking> findBookingsByOwner(long userId, BookingStatusForFind state, int from, int size) {
+        Pageable pageable = OffsetLimitPageable.of(from, size, Sort.by(Sort.Direction.DESC, "start"));
         List<Booking> bookings;
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findAllBookingByOwnerId(
-                        userId, Sort.by(Sort.Direction.DESC, "start"));
+                bookings = bookingRepository.findAllBookingByOwnerId(userId, pageable);
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             case WAITING:
-                bookings = bookingRepository.findBookingsByOwnerIdAndStatus(
-                        userId, BookingStatus.WAITING, Sort.by(Sort.Direction.DESC, "start"));
+                bookings = bookingRepository
+                        .findBookingsByStatusIsAndItem_Owner_Id(BookingStatus.WAITING, userId, pageable);
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             case REJECTED:
-                bookings = bookingRepository.findBookingsByOwnerIdAndStatus(
-                        userId, BookingStatus.REJECTED, Sort.by(Sort.Direction.DESC, "start"));
+                bookings = bookingRepository
+                        .findBookingsByStatusIsAndItem_Owner_Id(BookingStatus.REJECTED, userId, pageable);
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             case PAST:
-                bookings = bookingRepository.findPastBookingsByOwnerId(
-                        userId, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
+                bookings = bookingRepository.findPastBookingsByOwnerId(userId, LocalDateTime.now(), pageable);
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             case FUTURE:
-                bookings = bookingRepository.findFutureBookingsByOwnerId(
-                        userId, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
+                bookings = bookingRepository.findFutureBookingsByOwnerId(userId, LocalDateTime.now(), pageable);
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             case CURRENT:
-                bookings = bookingRepository.findCurrentBookingsByOwnerId(
-                        userId, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
+                bookings = bookingRepository.findCurrentBookingsByOwnerId(userId, LocalDateTime.now(), pageable);
                 if (bookings.isEmpty()) throw new ObjNotFoundException("Записи не найдены");
                 else return bookings;
             default:

@@ -33,7 +33,7 @@ public class Item {
     private User owner;
 
     @Column(name = "request_id", updatable = false)
-    private long request;
+    private long requestId;
 
     @Transient
     private LastBooking lastBooking;
@@ -44,7 +44,7 @@ public class Item {
     @Transient
     private Set<Comment> comment = new HashSet<>();
 
-    Item(long id, String name, String description, Boolean available) {
+    public Item(long id, String name, String description, Boolean available) {
         this.id = id;
         this.name = name;
         this.description = description;
