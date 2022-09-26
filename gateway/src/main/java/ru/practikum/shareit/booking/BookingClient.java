@@ -4,9 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practikum.shareit.booking.dto.BookingCreationDto;
 import ru.practikum.shareit.booking.dto.BookingState;
 import ru.practikum.shareit.booking.dto.BookingStateForFind;
@@ -21,12 +19,7 @@ public class BookingClient extends BaseClient {
 
     @Autowired
     public BookingClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
-        super(
-                builder
-                        .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
-                        .requestFactory(HttpComponentsClientHttpRequestFactory::new)
-                        .build()
-        );
+        super(serverUrl, builder, API_PREFIX);
     }
 
     public ResponseEntity<Object> getBookings(long userId, BookingState state, Integer from, Integer size) {

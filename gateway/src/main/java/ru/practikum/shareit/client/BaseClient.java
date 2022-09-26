@@ -1,9 +1,12 @@
 package ru.practikum.shareit.client;
 
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.lang.Nullable;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -11,8 +14,11 @@ import java.util.Map;
 public class BaseClient {
     protected final RestTemplate rest;
 
-    public BaseClient(RestTemplate rest) {
-        this.rest = rest;
+    public BaseClient(String serverUrl, RestTemplateBuilder builder, String apiPrefix) {
+        this.rest = builder
+                    .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + apiPrefix))
+                    .requestFactory(HttpComponentsClientHttpRequestFactory::new)
+                    .build();
     }
 
     protected ResponseEntity<Object> get(String path) {
